@@ -28,6 +28,7 @@ pub fn main() anyerror!void {
     const shm = context.shm orelse return error.NoWlShm;
     const compositor = context.compositor orelse return error.NoWlCompositor;
     const wm_base = context.wm_base orelse return error.NoXdgWmBase;
+    wm_base.setListener(*Context, xdgWmBaseListener, &context);
 
     const buffer = blk: {
         const width = 128;
@@ -89,6 +90,12 @@ fn registryListener(registry: *wl.Registry, event: wl.Registry.Event, context: *
             }
         },
         .global_remove => {},
+    }
+}
+
+fn xdgWmBaseListener(xdg_wm_base: *xdg.WmBase, event: xdg.WmBase.Event, _: *Context) void {
+    switch (event) {
+        .ping => |evt| xdg_wm_base.pong(evt.serial),
     }
 }
 
